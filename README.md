@@ -26,9 +26,9 @@ Aplikasi ini menggunakan Google Sheets sebagai database, sehingga tidak memerluk
 1. Ringkasan data (penyewa, kamar, pembayaran)
 
 🛠 Teknologi yang Digunakan
-Frontend: HTML, CSS, JavaScript
-Backend: Google Apps Script
-Database: Google Sheets
-Deployment: Web App (Google Apps Script)
-Version Control: GitHub
-Development Tool: CLASP
+1. Frontend: HTML, CSS, JavaScript
+2. Backend: Google Apps Script
+3. Database: Google Sheets
+4. Deployment: Web App (Google Apps Script)
+5. Version Control: GitHub
+6. Development Tool: CLASP
