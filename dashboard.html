@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>Dashboard — Manajemen Kos</title>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:#f0f4ff;--sidebar:#1a2340;--surface:#fff;--surface2:#f7f9ff;
+      --border:#e2e8f5;--primary:#2d5be3;--primary2:#1a3ebf;--pl:#eef2ff;
+      --text:#0f172a;--muted:#64748b;--success:#059669;--danger:#dc2626;
+      --nav-h:64px;
+    }
+    html,body{height:100%;overflow:hidden}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex}
+
+    /* ===== SIDEBAR (desktop) ===== */
+    .sidebar{width:236px;min-width:236px;background:var(--sidebar);display:flex;flex-direction:column;height:100vh;transition:transform .3s}
+    .sb-brand{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+    .sb-ico{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),#4f46e5);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 4px 14px rgba(45,91,227,.35)}
+    .sb-nm{font-size:14px;font-weight:800;color:#fff}
+    .sb-sub{font-size:10px;color:rgba(255,255,255,.35)}
+    .sb-kos{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+    .sb-kos-nm{font-size:12px;font-weight:600;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sb-kos-wa{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+    .sb-user{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:9px}
+    .u-ava{width:34px;height:34px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+    .u-nm{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .u-role{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.35);margin-top:1px}
+    .sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
+    .sb-nav::-webkit-scrollbar{display:none}
+    .sec-lbl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.25);padding:0 10px;margin:12px 0 4px}
+    .nav-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:8px;border:none;background:none;color:rgba(255,255,255,.5);font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s;text-align:left;margin-bottom:2px}
+    .nav-btn:hover{background:rgba(255,255,255,.07);color:#fff}
+    .nav-btn.active{background:rgba(45,91,227,.4);color:#fff;font-weight:500}
+    .nav-btn .ni{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+    .sb-foot{padding:10px 8px;border-top:1px solid rgba(255,255,255,.07)}
+    .btn-out{display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(239,68,68,.2);background:none;color:#f87171;font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s}
+    .btn-out:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35)}
+
+    /* ===== MAIN ===== */
+    .main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0}
+    .topbar{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 1px 4px rgba(45,91,227,.06)}
+    .tp-left{display:flex;align-items:center;gap:10px}
+    .tp-title{font-size:15px;font-weight:800;color:var(--text)}
+    .tp-time{font-size:12px;color:var(--muted);background:var(--surface2);padding:5px 12px;border-radius:20px;border:1px solid var(--border)}
+    .menu-toggle{display:none;width:36px;height:36px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0}
+
+    .content{flex:1;overflow:hidden;position:relative}
+    #frame{width:100%;height:100%;border:none;background:var(--bg)}
+    .fload{position:absolute;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .25s}
+    .fload.hidden{opacity:0;pointer-events:none}
+    .dots{display:flex;gap:5px}
+    .dots span{width:8px;height:8px;background:var(--primary);border-radius:50%;animation:db .8s ease-in-out infinite}
+    .dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+    @keyframes db{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-8px);opacity:1}}
+
+    /* ===== BOTTOM NAV (mobile) ===== */
+    .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--sidebar);border-top:1px solid rgba(255,255,255,.08);z-index:200;padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
+    .bottom-nav-inner{display:flex;height:100%;align-items:center}
+    .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 4px;border:none;background:none;color:rgba(255,255,255,.45);font-family:inherit;cursor:pointer;transition:color .15s;border-radius:8px;font-size:10px;font-weight:500}
+    .bnav-btn .bni{font-size:20px;line-height:1}
+    .bnav-btn.active{color:#fff}
+    .bnav-btn.active .bni-wrap{background:rgba(45,91,227,.5);border-radius:10px;padding:2px 10px}
+
+    /* Drawer overlay */
+    .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;backdrop-filter:blur(2px)}
+    .drawer-overlay.on{display:block}
+
+    /* Sidebar sebagai drawer di mobile */
+    @media(max-width:768px){
+      body{display:block;overflow:hidden}
+      .sidebar{
+        position:fixed;top:0;left:0;bottom:0;z-index:400;
+        transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,1,.36,1);
+        width:260px;min-width:0;
+      }
+      .sidebar.open{transform:translateX(0)}
+      .main{height:100vh;padding-bottom:var(--nav-h)}
+      .bottom-nav{display:block}
+      .menu-toggle{display:flex}
+      .tp-time{display:none}
+      .content{height:calc(100vh - 54px - var(--nav-h))}
+    }
+
+    @media(min-width:769px){
+      .bottom-nav{display:none}
+      .menu-toggle{display:none}
+    }
+
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+  </style>
+</head>
+<body>
+
+<!-- Drawer overlay (mobile) -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeSidebar()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-ico">&#x1F3E0;</div>
+    <div><div class="sb-nm">SI-KOS</div><div class="sb-sub">Sistem Informasi Kos</div></div>
+  </div>
+  <div class="sb-kos">
+    <div class="sb-kos-nm" id="sbKosNm">—</div>
+    <div class="sb-kos-wa" id="sbKosWa">—</div>
+  </div>
+  <div class="sb-user">
+    <div class="u-ava" id="uAva">&#x1F464;</div>
+    <div style="min-width:0"><div class="u-nm" id="uNm">—</div><div class="u-role" id="uRole">—</div></div>
+  </div>
+  <div class="sb-nav">
+    <div class="sec-lbl">Menu Utama</div>
+    <button class="nav-btn active" data-page="kamar" data-title="Data Kamar" onclick="go(this)"><span class="ni">&#x1F6AA;</span> Data Kamar</button>
+    <button class="nav-btn" data-page="penyewa" data-title="Data Penyewa" onclick="go(this)"><span class="ni">&#x1F465;</span> Data Penyewa</button>
+    <button class="nav-btn" data-page="pembayaran" data-title="Pembayaran" onclick="go(this)"><span class="ni">&#x1F4B0;</span> Pembayaran</button>
+    <div class="sec-lbl">Analitik</div>
+    <button class="nav-btn" data-page="laporan" data-title="Laporan & Grafik" onclick="go(this)"><span class="ni">&#x1F4CA;</span> Laporan</button>
+    <div class="sec-lbl">Pengaturan</div>
+    <button class="nav-btn" data-page="profil" data-title="Profil Pemilik" onclick="go(this)"><span class="ni">&#x1F464;</span> Profil Pemilik</button>
+  </div>
+  <div class="sb-foot"><button class="btn-out" onclick="logout()"><span>&#x1F6AA;</span> Keluar</button></div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tp-left">
+      <div class="menu-toggle" onclick="openSidebar()">&#9776;</div>
+      <span class="tp-title" id="tpTitle">Data Kamar</span>
+    </div>
+    <span class="tp-time" id="tpTime"></span>
+  </div>
+  <div class="content">
+    <div class="fload" id="fload"><div class="dots"><span></span><span></span><span></span></div></div>
+    <iframe id="frame" onload="frameReady()"></iframe>
+  </div>
+</div>
+
+<!-- Bottom Nav (mobile only) -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-btn active" data-page="kamar" data-title="Data Kamar" onclick="goMobile(this)">
+      <div class="bni-wrap"><div class="bni">&#x1F6AA;</div></div>
+      <span>Kamar</span>
+    </button>
+    <button class="bnav-btn" data-page="penyewa" data-title="Data Penyewa" onclick="goMobile(this)">
+      <div class="bni-wrap"><div class="bni">&#x1F465;</div></div>
+      <span>Penyewa</span>
+    </button>
+    <button class="bnav-btn" data-page="pembayaran" data-title="Pembayaran" onclick="goMobile(this)">
+      <div class="bni-wrap"><div class="bni">&#x1F4B0;</div></div>
+      <span>Bayar</span>
+    </button>
+    <button class="bnav-btn" data-page="laporan" data-title="Laporan" onclick="goMobile(this)">
+      <div class="bni-wrap"><div class="bni">&#x1F4CA;</div></div>
+      <span>Laporan</span>
+    </button>
+    <button class="bnav-btn" data-page="profil" data-title="Profil" onclick="goMobile(this)">
+      <div class="bni-wrap"><div class="bni">&#x1F464;</div></div>
+      <span>Profil</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  var BASE = '', user = null;
+
+  window.onload = function() {
+    var s = sessionStorage.getItem('kos_user');
+    if (!s) {
+      google.script.run.withSuccessHandler(function(u) { window.top.location.href = u + '?_page=login'; }).getScriptUrl();
+      return;
+    }
+    user = JSON.parse(s);
+    document.getElementById('uNm').innerText = user.nama || user.username;
+    document.getElementById('uRole').innerText = (user.role || '').toUpperCase();
+    document.getElementById('uAva').innerText = user.role === 'admin' ? '\u{1F451}' : '\u{1F464}';
+    tick(); setInterval(tick, 1000);
+
+    google.script.run.withSuccessHandler(function(p) {
+      document.getElementById('sbKosNm').innerText = p.nama_kos || 'Nama Kos Belum Diisi';
+      document.getElementById('sbKosWa').innerText = p.no_wa ? 'WA: ' + p.no_wa : 'No. WA Belum Diisi';
+    }).getProfil();
+
+    google.script.run.withSuccessHandler(function(url) { BASE = url; loadFrame('kamar'); }).getScriptUrl();
+  };
+
+  function tick() {
+    var n = new Date();
+    document.getElementById('tpTime').innerText =
+      n.toLocaleDateString('id-ID', {weekday:'short',day:'numeric',month:'short',year:'numeric'}) +
+      ' · ' + n.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'});
+  }
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('on');
+    document.body.style.overflow = '';
+  }
+
+  function go(el) {
+    document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    el.classList.add('active');
+    document.getElementById('tpTitle').innerText = el.getAttribute('data-title');
+    loadFrame(el.getAttribute('data-page'));
+    closeSidebar();
+  }
+
+  function goMobile(el) {
+    // Sync bottom nav active state
+    document.querySelectorAll('.bnav-btn').forEach(function(b) { b.classList.remove('active'); });
+    el.classList.add('active');
+    // Sync sidebar nav
+    var page = el.getAttribute('data-page');
+    document.querySelectorAll('.nav-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-page') === page);
+    });
+    document.getElementById('tpTitle').innerText = el.getAttribute('data-title');
+    loadFrame(page);
+  }
+
+  function loadFrame(page) {
+    document.getElementById('fload').classList.remove('hidden');
+    document.getElementById('frame').src = BASE + '?_page=' + page;
+  }
+
+  function frameReady() {
+    try { document.getElementById('frame').contentWindow.postMessage({type:'KOS_USER',user:user},'*'); } catch(e) {}
+    setTimeout(function() { document.getElementById('fload').classList.add('hidden'); }, 150);
+  }
+
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'PROFIL_UPDATED') {
+      document.getElementById('sbKosNm').innerText = e.data.nama_kos || 'Nama Kos Belum Diisi';
+      document.getElementById('sbKosWa').innerText = e.data.no_wa ? 'WA: ' + e.data.no_wa : 'No. WA Belum Diisi';
+    }
+  });
+
+  function logout() {
+    if (!confirm('Yakin ingin keluar?')) return;
+    sessionStorage.removeItem('kos_user');
+    google.script.run.withSuccessHandler(function(url) { window.top.location.href = url + '?_page=login'; }).getScriptUrl();
+  }
+</script>
+</body>
+</html>

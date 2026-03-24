@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login — SI-KOS</title>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:#f0f4ff;--surface:#ffffff;--surface2:#f7f9ff;--border:#e2e8f5;
+      --primary:#2d5be3;--primary2:#1a3ebf;--primary-light:#eef2ff;
+      --text:#0f172a;--muted:#64748b;--danger:#ef4444;
+    }
+    body{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+    /* BG decoration */
+    .bg-deco{position:fixed;inset:0;overflow:hidden;pointer-events:none}
+    .blob{position:absolute;border-radius:50%;filter:blur(80px)}
+    .b1{width:500px;height:500px;background:rgba(45,91,227,.08);top:-100px;right:-100px}
+    .b2{width:350px;height:350px;background:rgba(99,102,241,.06);bottom:-80px;left:-60px}
+    .b3{width:200px;height:200px;background:rgba(245,158,11,.05);top:40%;left:30%}
+
+    .wrap{position:relative;z-index:1;width:420px;animation:up .5s cubic-bezier(.22,1,.36,1)}
+    @keyframes up{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+    .brand{text-align:center;margin-bottom:28px}
+    .brand-icon{width:70px;height:70px;background:linear-gradient(135deg,var(--primary),var(--primary2));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px;box-shadow:0 8px 32px rgba(45,91,227,.25)}
+    .brand h1{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;font-size:24px;font-weight:800;color:var(--text)}
+    .brand p{font-size:13px;color:var(--muted);margin-top:5px}
+
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 28px;box-shadow:0 4px 32px rgba(45,91,227,.08)}
+
+    .field{margin-bottom:18px}
+    .field label{display:block;font-size:11px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+    .field input{width:100%;padding:12px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;transition:all .2s}
+    .field input:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(45,91,227,.1)}
+    .field input::placeholder{color:#b0bdd6}
+
+    .btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(45,91,227,.28)}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+    .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .err{display:none;margin-top:14px;padding:10px 13px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:13px;color:#dc2626}
+  </style>
+</head>
+<body>
+<div class="bg-deco"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-icon">🏠</div>
+    <h1>SI-KOS</h1>
+    <p>Sistem Informasi Kos Modern</p>
+  </div>
+  <div class="card">
+    <div class="field">
+      <label>Username</label>
+      <input id="u" type="text" placeholder="Masukkan username" onkeydown="if(event.key==='Enter')document.getElementById('p').focus()">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="p" type="password" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn" id="btn" onclick="doLogin()">
+      <div class="spin" id="spin"></div><span id="btxt">Masuk</span>
+    </button>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+<script>
+  try{ var s=sessionStorage.getItem('kos_user'); if(s){ google.script.run.withSuccessHandler(function(url){ window.top.location.href=url+'?_page=dashboard'; }).getScriptUrl(); } }catch(e){}
+  function doLogin(){
+    var u=document.getElementById('u').value.trim(), p=document.getElementById('p').value;
+    var err=document.getElementById('err'); err.style.display='none';
+    if(!u||!p){err.style.display='block';err.innerText='⚠️ Username dan password wajib diisi.';return;}
+    var btn=document.getElementById('btn'); btn.disabled=true;
+    document.getElementById('spin').style.display='block';
+    document.getElementById('btxt').innerText='Memeriksa...';
+    google.script.run
+      .withSuccessHandler(function(res){
+        if(res.status){
+          sessionStorage.setItem('kos_user',JSON.stringify({username:res.username,role:res.role,nama:res.nama}));
+          google.script.run.withSuccessHandler(function(url){ window.top.location.href=url+'?_page=dashboard'; }).getScriptUrl();
+        } else {
+          err.style.display='block'; err.innerText='❌ Username atau password salah.';
+          btn.disabled=false; document.getElementById('spin').style.display='none'; document.getElementById('btxt').innerText='Masuk';
+        }
+      })
+      .withFailureHandler(function(e){
+        err.style.display='block'; err.innerText='🔴 Error: '+e.message;
+        btn.disabled=false; document.getElementById('spin').style.display='none'; document.getElementById('btxt').innerText='Masuk';
+      }).login(u,p);
+  }
+</script>
+</body>
+</html>

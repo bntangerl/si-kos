@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top"><meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#f0f4ff;--surface:#fff;--surface2:#f7f9ff;--border:#e2e8f5;--primary:#2d5be3;--primary2:#1a3ebf;--pl:#eef2ff;--text:#0f172a;--muted:#64748b;--success:#059669;--warning:#d97706;--danger:#dc2626;--radius:10px}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    .page{display:flex;flex-direction:column;height:100%;padding:18px;gap:14px}
+    .toolbar{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+    .toolbar h2{font-family:system-ui,sans-serif;font-size:16px;font-weight:800;flex:1}
+    .filter-tabs{display:flex;gap:5px}
+    .ftab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s}
+    .ftab.active{border-color:var(--primary);background:var(--pl);color:var(--primary)}
+    .sw{position:relative}
+    .sw input{padding:8px 13px 8px 34px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;width:190px;transition:border-color .2s}
+    .sw input:focus{outline:none;border-color:var(--primary)}
+    .sw .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+    .btn{padding:8px 14px;border-radius:8px;border:none;font-size:13px;font-weight:600;font-family:system-ui,sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
+    .bp{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff}
+    .bp:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(45,91,227,.22)}
+    .bsm{padding:5px 10px;font-size:12px}
+    .be{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}.be:hover{background:#dbeafe}
+    .bw{background:#fffbeb;color:var(--warning);border:1px solid #fde68a}.bw:hover{background:#fef3c7}
+    .bd{background:#fef2f2;color:var(--danger);border:1px solid #fecaca}.bd:hover{background:#fee2e2}
+    .bc{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+    .tw{flex:1;overflow:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+    .tw::-webkit-scrollbar{width:4px;height:4px}.tw::-webkit-scrollbar-thumb{background:var(--border)}
+    table{width:100%;border-collapse:collapse}
+    thead{position:sticky;top:0;z-index:1}
+    th{background:#f8faff;padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+    td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#fafbff}
+    .badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+    .b-aktif{background:#d1fae5;color:#065f46}
+    .b-keluar{background:#f3f4f6;color:#6b7280}
+    .kamar-chip{background:var(--pl);color:var(--primary);font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px}
+    .mbg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+    .mbg.on{display:flex}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:460px;box-shadow:0 20px 60px rgba(15,23,42,.12);animation:pop .22s cubic-bezier(.22,1,.36,1);max-height:90vh;overflow-y:auto}
+    @keyframes pop{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+    .modal h3{font-family:system-ui,sans-serif;font-size:16px;font-weight:800;margin-bottom:18px}
+    .mf{margin-bottom:13px}
+    .mf label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+    .mf input,.mf select{width:100%;padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;transition:border-color .2s}
+    .mf input:focus,.mf select:focus{outline:none;border-color:var(--primary);background:#fff}
+    .rg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+    .kamar-info{background:var(--pl);border:1px solid #c7d7ff;border-radius:8px;padding:10px 12px;font-size:13px;margin-top:6px;color:var(--primary);display:none}
+    .toast{position:fixed;bottom:16px;right:16px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(50px);opacity:0;transition:all .3s;background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .toast.on{transform:translateY(0);opacity:1}
+    .toast.ok{background:#ecfdf5;border-color:#a7f3d0;color:var(--success)}
+    .toast.err{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
+    .toast.warn{background:#fffbeb;border-color:#fde68a;color:var(--warning)}
+    .erow td{text-align:center;padding:40px;color:var(--muted)}
+
+    /* ===== RESPONSIVE MOBILE ===== */
+    @media(max-width:600px){
+      .page{padding:12px;gap:10px}
+      .toolbar{gap:8px}
+      .toolbar h2{font-size:15px}
+      .filter-tabs{order:3;width:100%}
+      .ftab{padding:5px 10px;font-size:11px}
+      .sw{order:4;width:100%}
+      .sw input{width:100%}
+      .btn.bp{order:2}
+      /* Tabel scroll horizontal */
+      .tw{overflow-x:auto}
+      table{min-width:500px}
+      /* Modal full screen */
+      .mbg{align-items:flex-end}
+      .modal{width:100%!important;max-width:100%!important;border-radius:18px 18px 0 0!important;max-height:92vh;padding:20px 16px}
+      .rg{grid-template-columns:1fr!important}
+      /* Summary cards 1 kolom */
+      .sum-row{grid-template-columns:1fr!important}
+      /* KPI 2 kolom */
+      .kpi-row{grid-template-columns:1fr 1fr!important}
+      /* Charts stack */
+      .charts-row{grid-template-columns:1fr!important}
+      .bottom-row{grid-template-columns:1fr!important}
+      /* Kamar grid 1 kolom */
+      .kamar-grid{grid-template-columns:1fr 1fr!important}
+    }
+    @media(max-width:400px){
+      .kamar-grid{grid-template-columns:1fr!important}
+      .kpi-row{grid-template-columns:1fr!important}
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="toolbar">
+    <h2>👥 Data Penyewa</h2>
+    <div class="filter-tabs">
+      <div class="ftab active" onclick="setFilter(this,'semua')">Semua</div>
+      <div class="ftab" onclick="setFilter(this,'aktif')">Aktif</div>
+      <div class="ftab" onclick="setFilter(this,'keluar')">Sudah Keluar</div>
+    </div>
+    <div class="sw"><span class="si">🔍</span><input type="text" id="sq" placeholder="Cari penyewa..." oninput="doFilter()"></div>
+    <button class="btn bp" onclick="openAdd()">＋ Tambah Penyewa</button>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Nama</th><th>NIK</th><th>No. HP</th><th>Kamar</th><th>Tgl Masuk</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="tb"><tr class="erow"><td colspan="7">⏳ Memuat...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mbg" id="mbg">
+  <div class="modal">
+    <h3 id="mtitle">Tambah Penyewa</h3>
+    <input type="hidden" id="eid">
+    <div class="rg">
+      <div class="mf"><label>Nama Lengkap *</label><input id="pnm" type="text" placeholder="Nama penyewa"></div>
+      <div class="mf"><label>NIK (KTP) *</label><input id="pnik" type="text" placeholder="16 digit NIK"></div>
+    </div>
+    <div class="rg">
+      <div class="mf"><label>No. HP *</label><input id="php" type="text" placeholder="08xx-xxxx-xxxx"></div>
+      <div class="mf"><label>Email</label><input id="pemail" type="email" placeholder="email@domain.com"></div>
+    </div>
+    <div class="mf"><label>Alamat Asal</label><input id="palamat" type="text" placeholder="Alamat asal penyewa"></div>
+    <div class="mf" id="kamarField">
+      <label>Pilih Kamar *</label>
+      <select id="pkamar" onchange="showKamarInfo()"><option value="">-- Pilih Kamar --</option></select>
+      <div class="kamar-info" id="kamarInfo"></div>
+    </div>
+    <div class="rg">
+      <div class="mf"><label>Tanggal Masuk *</label><input id="ptglm" type="date"></div>
+      <div class="mf"><label>Estimasi Keluar</label><input id="ptglk" type="date"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bc" onclick="closeModal()">Batal</button>
+      <button class="btn bp" id="bsave" onclick="save()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  var rows_data = [];
+  var curFilter = 'semua';
+  var kamarList = [];
+
+  function fmt(n) { return Number(n).toLocaleString('id-ID'); }
+
+  function toast(m, t) {
+    var el = document.getElementById('toast');
+    el.innerText = m;
+    el.className = 'toast ' + (t || '') + ' on';
+    setTimeout(function() { el.classList.remove('on'); }, 2800);
+  }
+
+  function fmtTgl(v) {
+    if (!v || v === '' || v === '-' || v === 'None') return '-';
+    try {
+      var d = new Date(v);
+      if (isNaN(d.getTime())) return String(v);
+      return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear();
+    } catch(e) { return String(v); }
+  }
+
+  function esc(s) { return String(s || '').replace(/['"<>]/g, ''); }
+
+  function setFilter(el, f) {
+    document.querySelectorAll('.ftab').forEach(function(t) { t.classList.remove('active'); });
+    el.classList.add('active');
+    curFilter = f;
+    doFilter();
+  }
+
+  function doFilter() {
+    var k = document.getElementById('sq').value.toLowerCase();
+    var filtered = rows_data.filter(function(r) {
+      var mK = !k ||
+        (r.nama || '').toLowerCase().indexOf(k) >= 0 ||
+        (r.nomor_kamar || '').toLowerCase().indexOf(k) >= 0 ||
+        (r.no_hp || '').indexOf(k) >= 0;
+      var status = (r.status_aktif || '').toLowerCase();
+      var mF = curFilter === 'semua' || status === curFilter;
+      return mK && mF;
+    });
+    render(filtered);
+  }
+
+  function render(rows) {
+    if (!rows.length) {
+      document.getElementById('tb').innerHTML =
+        '<tr class="erow"><td colspan="7">👥 Tidak ada penyewa ditemukan.</td></tr>';
+      return;
+    }
+    var html = '';
+    for (var i = 0; i < rows.length; i++) {
+      var r   = rows[i];
+      var id  = r.id || '';
+      var nama  = r.nama || '-';
+      var nik   = r.nik || '-';
+      var hp    = r.no_hp || '-';
+      var kamar = r.nomor_kamar || '-';
+      var tglM  = fmtTgl(r.tgl_masuk);
+      var st    = (r.status_aktif || 'aktif').toLowerCase();
+      html += '<tr>' +
+        '<td><b>' + nama + '</b></td>' +
+        '<td style="color:var(--muted);font-size:12px;">' + nik + '</td>' +
+        '<td>' + hp + '</td>' +
+        '<td>' + (kamar !== '-' ? '<span class="kamar-chip">' + kamar + '</span>' : '—') + '</td>' +
+        '<td style="font-size:12px;color:var(--muted);">' + tglM + '</td>' +
+        '<td><span class="badge b-' + st + '">' + st + '</span></td>' +
+        '<td><div style="display:flex;gap:4px;flex-wrap:wrap">' +
+          '<button class="btn bsm be" onclick="openEdit(' + id + ')">✏️ Edit</button>' +
+          (st === 'aktif'
+            ? '<button class="btn bsm bw" onclick="keluar(' + id + ',\'' + esc(nama) + '\')">📤 Keluar</button>'
+            : '<button class="btn bsm bd" onclick="hapus(' + id + ',\'' + esc(nama) + '\')">🗑 Hapus</button>'
+          ) +
+        '</div></td></tr>';
+    }
+    document.getElementById('tb').innerHTML = html;
+  }
+
+  function load() {
+    document.getElementById('tb').innerHTML =
+      '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">⏳ Memuat data...</td></tr>';
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        // Backend error
+        if (!result || (result.error)) {
+          document.getElementById('tb').innerHTML =
+            '<tr class="erow"><td colspan="7">❌ ' + (result && result.error ? result.error : 'Gagal memuat data') + '</td></tr>';
+          return;
+        }
+        // Kosong
+        if (!Array.isArray(result) || result.length === 0) {
+          document.getElementById('tb').innerHTML =
+            '<tr class="erow"><td colspan="7">👥 Belum ada data penyewa.</td></tr>';
+          return;
+        }
+        rows_data = result;
+        doFilter();
+      })
+      .withFailureHandler(function(e) {
+        console.error('getPenyewa FAILURE:', e);
+        document.getElementById('tb').innerHTML =
+          '<tr><td colspan="7" style="text-align:center;padding:30px;color:red">❌ Gagal: ' + e.message + '</td></tr>';
+      })
+      .getPenyewa();
+  }
+
+  function showKamarInfo() {
+    var sel = document.getElementById('pkamar');
+    var opt = sel.options[sel.selectedIndex];
+    var info = document.getElementById('kamarInfo');
+    if (sel.value && opt.getAttribute('data-harga')) {
+      info.style.display = 'block';
+      info.innerText = '💰 Harga sewa: Rp ' + fmt(opt.getAttribute('data-harga')) + '/bulan';
+    } else {
+      info.style.display = 'none';
+    }
+  }
+
+  function openAdd() {
+    document.getElementById('mtitle').innerText = 'Tambah Penyewa';
+    ['eid','pnm','pnik','php','pemail','palamat'].forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('ptglm').value = new Date().toISOString().split('T')[0];
+    document.getElementById('ptglk').value = '';
+    document.getElementById('kamarInfo').style.display = 'none';
+    document.getElementById('kamarField').style.display = 'block';
+    document.getElementById('bsave').innerText = '💾 Simpan';
+
+    google.script.run
+      .withSuccessHandler(function(list) {
+        kamarList = list || [];
+        var opts = '<option value="">-- Pilih Kamar --</option>';
+        for (var i = 0; i < kamarList.length; i++) {
+          var k = kamarList[i];
+          opts += '<option value="' + k.id + '" data-harga="' + k.harga + '">' +
+            k.nomor + ' — ' + k.tipe + ' (Rp ' + fmt(k.harga) + ')</option>';
+        }
+        document.getElementById('pkamar').innerHTML = opts;
+      })
+      .withFailureHandler(function(e) { toast('❌ Gagal load kamar: ' + e.message, 'err'); })
+      .getKamarKosong();
+
+    document.getElementById('mbg').classList.add('on');
+    document.getElementById('pnm').focus();
+  }
+
+  function openEdit(id) {
+    var row = null;
+    for (var i = 0; i < rows_data.length; i++) {
+      if (String(rows_data[i].id) === String(id)) { row = rows_data[i]; break; }
+    }
+    if (!row) { toast('Data tidak ditemukan', 'err'); return; }
+
+    document.getElementById('mtitle').innerText = 'Edit Penyewa';
+    document.getElementById('eid').value = row.id;
+    document.getElementById('pnm').value = row.nama || '';
+    document.getElementById('pnik').value = row.nik || '';
+    document.getElementById('php').value = row.no_hp || '';
+    document.getElementById('pemail').value = row.email || '';
+    document.getElementById('palamat').value = row.alamat_asal || '';
+    document.getElementById('ptglm').value = row.tgl_masuk || '';
+    document.getElementById('ptglk').value = row.tgl_keluar || '';
+    document.getElementById('kamarField').style.display = 'none';
+    document.getElementById('kamarInfo').style.display = 'none';
+    document.getElementById('bsave').innerText = '💾 Simpan';
+    document.getElementById('mbg').classList.add('on');
+  }
+
+  function closeModal() { document.getElementById('mbg').classList.remove('on'); }
+
+  function save() {
+    var id = document.getElementById('eid').value;
+    var d = {
+      nama:        document.getElementById('pnm').value.trim(),
+      nik:         document.getElementById('pnik').value.trim(),
+      no_hp:       document.getElementById('php').value.trim(),
+      email:       document.getElementById('pemail').value.trim(),
+      alamat_asal: document.getElementById('palamat').value.trim(),
+      tgl_masuk:   document.getElementById('ptglm').value,
+      tgl_keluar:  document.getElementById('ptglk').value
+    };
+    if (!d.nama || !d.nik || !d.no_hp || !d.tgl_masuk) {
+      toast('⚠️ Nama, NIK, No HP, dan Tgl Masuk wajib diisi!', 'err');
+      return;
+    }
+    var btn = document.getElementById('bsave');
+    btn.disabled = true; btn.innerText = '⏳...';
+
+    if (id) {
+      d.id = Number(id);
+      google.script.run
+        .withSuccessHandler(function(r) {
+          btn.disabled = false; btn.innerText = '💾 Simpan';
+          if (r && r.status) { closeModal(); toast('✅ Data diperbarui', 'ok'); load(); }
+          else toast('❌ ' + (r && r.msg ? r.msg : 'Gagal'), 'err');
+        })
+        .withFailureHandler(function(e) {
+          btn.disabled = false; btn.innerText = '💾 Simpan';
+          toast('❌ ' + e.message, 'err');
+        })
+        .editPenyewa(d);
+    } else {
+      d.kamar_id = document.getElementById('pkamar').value;
+      if (!d.kamar_id) {
+        toast('⚠️ Pilih kamar!', 'err');
+        btn.disabled = false; btn.innerText = '💾 Simpan';
+        return;
+      }
+      google.script.run
+        .withSuccessHandler(function(r) {
+          btn.disabled = false; btn.innerText = '💾 Simpan';
+          if (r && r.status) { closeModal(); toast('✅ Penyewa ditambahkan', 'ok'); load(); }
+          else toast('❌ Gagal', 'err');
+        })
+        .withFailureHandler(function(e) {
+          btn.disabled = false; btn.innerText = '💾 Simpan';
+          toast('❌ ' + e.message, 'err');
+        })
+        .tambahPenyewa(d);
+    }
+  }
+
+  function keluar(id, nm) {
+    if (!confirm('Tandai "' + nm + '" sudah keluar?\nKamar akan otomatis dibebaskan.')) return;
+    google.script.run
+      .withSuccessHandler(function(r) {
+        if (r && r.status) { toast('✅ Penyewa ditandai keluar', 'ok'); load(); }
+        else toast('❌ Gagal', 'err');
+      })
+      .withFailureHandler(function(e) { toast('❌ ' + e.message, 'err'); })
+      .penyewaKeluar(id);
+  }
+
+  function hapus(id, nama) {
+    if (!confirm('Hapus data "' + nama + '"?\nData yang sudah dihapus tidak bisa dikembalikan!')) return;
+
+    google.script.run
+      .withSuccessHandler(function(r) {
+        if (r && r.status) {
+          toast('🗑 Data berhasil dihapus', 'ok');
+          load();
+        } else {
+          toast('❌ Gagal hapus data', 'err');
+        }
+      })
+      .withFailureHandler(function(e) {
+        toast('❌ ' + e.message, 'err');
+      })
+      .hapusPenyewa(id);
+  }
+
+  window.onload = function() { load(); };
+</script>
+</body>
+</html>

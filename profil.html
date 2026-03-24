@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top"><meta charset="UTF-8">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#f0f4ff;--surface:#fff;--surface2:#f7f9ff;--border:#e2e8f5;--primary:#2d5be3;--primary2:#1a3ebf;--pl:#eef2ff;--text:#0f172a;--muted:#64748b;--success:#059669;--warning:#d97706;--danger:#dc2626;--radius:10px}
+    html,body{height:100%;overflow:auto}
+    body{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;background:var(--bg);color:var(--text)}
+    body::-webkit-scrollbar{width:4px} body::-webkit-scrollbar-thumb{background:var(--border)}
+
+    .page{max-width:760px;margin:0 auto;padding:24px 20px 40px}
+
+    .page-header{margin-bottom:24px}
+    .page-header h2{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;font-size:20px;font-weight:800}
+    .page-header p{font-size:13px;color:var(--muted);margin-top:4px}
+
+    /* PREVIEW CARD */
+    .preview-card{background:linear-gradient(135deg,#1a2340,#2d3f6e);border-radius:16px;padding:24px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden}
+    .preview-card::after{content:'🏠';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.08}
+    .preview-kos-nm{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;font-size:22px;font-weight:800;margin-bottom:6px}
+    .preview-info{display:flex;gap:20px;flex-wrap:wrap}
+    .preview-item{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.75)}
+    .preview-item .ico{font-size:15px}
+
+    /* SECTIONS */
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}
+    .section-title{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .section-title .sti{font-size:18px}
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+    .field{margin-bottom:0}
+    .field label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+    .field input,.field textarea,.field select{width:100%;padding:11px 13px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-size:14px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;transition:all .2s}
+    .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(45,91,227,.08)}
+    .field input::placeholder,.field textarea::placeholder{color:#b0bdd6}
+    .field textarea{resize:vertical;min-height:75px}
+
+    /* Logo upload */
+    .logo-wrap{display:flex;align-items:center;gap:16px}
+    .logo-box{width:80px;height:80px;border-radius:14px;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden;flex-shrink:0;cursor:pointer;transition:border-color .2s}
+    .logo-box:hover{border-color:var(--primary)}
+    .logo-box img{width:100%;height:100%;object-fit:cover}
+    .logo-info{flex:1}
+    .logo-info p{font-size:13px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+    .logo-btns{display:flex;gap:8px;flex-wrap:wrap}
+
+    /* WA chip */
+    .wa-preview{display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;background:#f0fdf4;border:1px solid #a7f3d0;border-radius:8px;font-size:12px;color:var(--success);display:none}
+    .wa-preview.show{display:flex}
+
+    /* ACTION BUTTONS */
+    .action-row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+    .btn{padding:10px 20px;border-radius:9px;border:none;font-size:14px;font-weight:600;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+    .bp{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff}
+    .bp:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(45,91,227,.25)}
+    .bp:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+    .bc{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+    .bc:hover{color:var(--text)}
+    .bsm{padding:7px 12px;font-size:12px;border-radius:8px}
+    .bg2{background:#ecfdf5;color:var(--success);border:1px solid #a7f3d0}.bg2:hover{background:#d1fae5}
+    .bd{background:#fef2f2;color:var(--danger);border:1px solid #fecaca}.bd:hover{background:#fee2e2}
+
+    /* Spinner */
+    .spin-wrap{display:none;align-items:center;gap:8px;font-size:13px;color:var(--primary)}
+    .spin-wrap.show{display:flex}
+    .mini-spin{width:16px;height:16px;border:2px solid #c7d2e8;border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .toast{position:fixed;bottom:16px;right:16px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(50px);opacity:0;transition:all .3s;background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .toast.on{transform:translateY(0);opacity:1}
+    .toast.ok{background:#ecfdf5;border-color:#a7f3d0;color:var(--success)}
+    .toast.err{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
+
+    @media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="page-header">
+    <h2>👤 Profil Pemilik & Info Kos</h2>
+    <p>Informasi ini akan muncul di kwitansi pembayaran dan sidebar aplikasi.</p>
+  </div>
+
+  <!-- PREVIEW CARD -->
+  <div class="preview-card">
+    <div class="preview-kos-nm" id="prevNmKos">Nama Kos</div>
+    <div class="preview-info">
+      <div class="preview-item"><span class="ico">👤</span><span id="prevPemilik">Pemilik</span></div>
+      <div class="preview-item"><span class="ico">📱</span><span id="prevWa">No. WA</span></div>
+      <div class="preview-item"><span class="ico">📞</span><span id="prevTelp">No. Telp</span></div>
+    </div>
+  </div>
+
+  <!-- IDENTITAS KOS -->
+  <div class="section">
+    <div class="section-title"><span class="sti">🏠</span> Identitas Kos</div>
+    <div class="grid2">
+      <div class="field"><label>Nama Kos *</label><input id="fNamaKos" type="text" placeholder="cth: Kos Melati Indah" oninput="updatePreview()"></div>
+      <div class="field"><label>Alamat Kos</label><input id="fAlamat" type="text" placeholder="Jl. ... No. ..."></div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="field"><label>Deskripsi Singkat</label><textarea id="fDeskripsi" placeholder="Deskripsikan kos Anda..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- DATA PEMILIK -->
+  <div class="section">
+    <div class="section-title"><span class="sti">👤</span> Data Pemilik</div>
+    <div class="grid2">
+      <div class="field"><label>Nama Pemilik *</label><input id="fPemilik" type="text" placeholder="Nama lengkap pemilik" oninput="updatePreview()"></div>
+      <div class="field"><label>No. WhatsApp *</label>
+        <input id="fWa" type="text" placeholder="cth: 08123456789" oninput="updatePreview()">
+        <div class="wa-preview" id="waPreview">
+          <span>💬</span><span>Link WA: </span><a id="waLink" href="#" target="_blank" style="color:var(--success);font-weight:600;text-decoration:none" id="waLinkText">—</a>
+        </div>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="field"><label>No. Telepon</label><input id="fTelp" type="text" placeholder="cth: 021-XXXXXXX" oninput="updatePreview()"></div>
+      <div class="field"><label>Email</label><input id="fEmail" type="email" placeholder="email@domain.com"></div>
+    </div>
+  </div>
+
+  <!-- INFO REKENING -->
+  <div class="section">
+    <div class="section-title"><span class="sti">🏦</span> Info Rekening Bank <span style="font-size:11px;font-weight:400;color:var(--muted)">(opsional, muncul di kwitansi)</span></div>
+    <div class="grid3">
+      <div class="field"><label>Nama Bank</label><input id="fBankNm" type="text" placeholder="cth: BCA, BRI, Mandiri"></div>
+      <div class="field"><label>No. Rekening</label><input id="fBankNo" type="text" placeholder="xxxx-xxxx-xxxx"></div>
+      <div class="field"><label>Atas Nama</label><input id="fBankAn" type="text" placeholder="Nama pemilik rekening"></div>
+    </div>
+  </div>
+
+  <!-- LOGO / FOTO KOS -->
+  <div class="section">
+    <div class="section-title"><span class="sti">🖼️</span> Logo / Foto Kos <span style="font-size:11px;font-weight:400;color:var(--muted)">(muncul di kwitansi)</span></div>
+    <div class="logo-wrap">
+      <div class="logo-box" id="logoBox" onclick="document.getElementById('logoFile').click()">
+        <img id="logoPreview" src="" alt="" style="display:none">
+        <span id="logoIcon">🏠</span>
+      </div>
+      <div class="logo-info">
+        <p>Gunakan logo atau foto kos untuk mempercantik kwitansi.<br>Format: JPG, PNG. Maks 1MB.</p>
+        <div class="logo-btns">
+          <button class="btn bsm bg2" onclick="document.getElementById('logoFile').click()">📷 Pilih Gambar</button>
+          <button class="btn bsm bd" onclick="clearLogo()">✕ Hapus</button>
+        </div>
+        <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="handleLogo(this)">
+        <div class="spin-wrap" id="logoSpin"><div class="mini-spin"></div> Mengupload logo...</div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px">
+      <label>atau masukkan URL logo</label>
+      <input id="fLogoUrl" type="text" placeholder="https://..." oninput="previewLogoUrl(this.value)">
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="btn bc" onclick="loadData()">↺ Reset</button>
+    <button class="btn bp" id="btnSave" onclick="save()">💾 Simpan Profil</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function toast(m,t){ var el=document.getElementById('toast'); el.innerText=m; el.className='toast '+(t||'')+' on'; setTimeout(function(){ el.classList.remove('on'); },2800); }
+
+  function updatePreview(){
+    var nm=document.getElementById('fNamaKos').value||'Nama Kos';
+    var pm=document.getElementById('fPemilik').value||'Pemilik';
+    var wa=document.getElementById('fWa').value||'—';
+    var telp=document.getElementById('fTelp').value||'—';
+    document.getElementById('prevNmKos').innerText=nm;
+    document.getElementById('prevPemilik').innerText=pm;
+    document.getElementById('prevWa').innerText=wa;
+    document.getElementById('prevTelp').innerText=telp;
+
+    // WA link preview
+    var waNum=document.getElementById('fWa').value.replace(/\D/g,'');
+    if(waNum.length>=8){
+      if(waNum.startsWith('0')) waNum='62'+waNum.slice(1);
+      var wpv=document.getElementById('waPreview');
+      wpv.classList.add('show');
+      var lnk='https://wa.me/'+waNum;
+      document.getElementById('waLink').href=lnk;
+      document.getElementById('waLink').innerText='wa.me/'+waNum;
+    } else {
+      document.getElementById('waPreview').classList.remove('show');
+    }
+  }
+
+  function previewLogoUrl(url){
+    if(url&&url.startsWith('http')){
+      document.getElementById('logoPreview').src=url;
+      document.getElementById('logoPreview').style.display='block';
+      document.getElementById('logoIcon').style.display='none';
+    } else {
+      document.getElementById('logoPreview').style.display='none';
+      document.getElementById('logoIcon').style.display='block';
+    }
+  }
+
+  function handleLogo(input){
+    var file=input.files[0]; if(!file) return;
+    if(file.size>1024*1024){ toast('⚠️ Ukuran logo max 1MB!','err'); return; }
+    var reader=new FileReader();
+    reader.onload=function(e){
+      document.getElementById('logoPreview').src=e.target.result;
+      document.getElementById('logoPreview').style.display='block';
+      document.getElementById('logoIcon').style.display='none';
+      // Upload
+      document.getElementById('logoSpin').classList.add('show');
+      var base64=e.target.result.split(',')[1];
+      google.script.run
+        .withSuccessHandler(function(res){
+          document.getElementById('logoSpin').classList.remove('show');
+          if(res.status){
+            document.getElementById('fLogoUrl').value=res.url;
+            document.getElementById('logoPreview').src=res.url;
+            toast('✅ Logo diupload','ok');
+          } else toast('❌ '+res.msg,'err');
+        })
+        .withFailureHandler(function(e2){
+          document.getElementById('logoSpin').classList.remove('show');
+          toast('❌ '+e2.message,'err');
+        })
+        .uploadGambarKamar(base64, file.name, file.type);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearLogo(){
+    document.getElementById('logoPreview').style.display='none';
+    document.getElementById('logoPreview').src='';
+    document.getElementById('logoIcon').style.display='block';
+    document.getElementById('fLogoUrl').value='';
+    document.getElementById('logoFile').value='';
+  }
+
+  window.onload=function(){ loadData(); };
+
+  function loadData(){
+    google.script.run
+      .withSuccessHandler(function(p){
+        document.getElementById('fNamaKos').value=p.nama_kos||'';
+        document.getElementById('fAlamat').value=p.alamat||'';
+        document.getElementById('fDeskripsi').value=p.deskripsi||'';
+        document.getElementById('fPemilik').value=p.pemilik||'';
+        document.getElementById('fWa').value=p.no_wa||'';
+        document.getElementById('fTelp').value=p.no_telp||'';
+        document.getElementById('fEmail').value=p.email||'';
+        document.getElementById('fBankNm').value=p.bank_name||'';
+        document.getElementById('fBankNo').value=p.bank_no||'';
+        document.getElementById('fBankAn').value=p.bank_atas_nama||'';
+        document.getElementById('fLogoUrl').value=p.logo_url||'';
+        if(p.logo_url){ previewLogoUrl(p.logo_url); }
+        updatePreview();
+      })
+      .withFailureHandler(function(e){ toast('❌ Gagal memuat: '+e.message,'err'); })
+      .getProfil();
+  }
+
+  function save(){
+    var d={
+      nama_kos: document.getElementById('fNamaKos').value.trim(),
+      alamat: document.getElementById('fAlamat').value.trim(),
+      deskripsi: document.getElementById('fDeskripsi').value.trim(),
+      pemilik: document.getElementById('fPemilik').value.trim(),
+      no_wa: document.getElementById('fWa').value.trim(),
+      no_telp: document.getElementById('fTelp').value.trim(),
+      email: document.getElementById('fEmail').value.trim(),
+      bank_name: document.getElementById('fBankNm').value.trim(),
+      bank_no: document.getElementById('fBankNo').value.trim(),
+      bank_atas_nama: document.getElementById('fBankAn').value.trim(),
+      logo_url: document.getElementById('fLogoUrl').value.trim()
+    };
+    if(!d.nama_kos||!d.pemilik){ toast('⚠️ Nama kos dan nama pemilik wajib diisi!','err'); return; }
+
+    var btn=document.getElementById('btnSave'); btn.disabled=true; btn.innerText='⏳ Menyimpan...';
+    google.script.run
+      .withSuccessHandler(function(r){
+        btn.disabled=false; btn.innerText='💾 Simpan Profil';
+        if(r.status){
+          toast('✅ Profil berhasil disimpan!','ok');
+          // Beritahu dashboard untuk update sidebar
+          try{ window.parent.postMessage({type:'PROFIL_UPDATED', nama_kos:d.nama_kos, no_wa:d.no_wa},'*'); }catch(e){}
+        } else toast('❌ Gagal menyimpan','err');
+      })
+      .withFailureHandler(function(e){ btn.disabled=false; btn.innerText='💾 Simpan Profil'; toast('❌ '+e.message,'err'); })
+      .saveProfil(d);
+  }
+</script>
+</body>
+</html>

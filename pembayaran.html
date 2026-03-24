@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top"><meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#f0f4ff;--surface:#fff;--surface2:#f7f9ff;--border:#e2e8f5;--primary:#2d5be3;--primary2:#1a3ebf;--pl:#eef2ff;--text:#0f172a;--muted:#64748b;--success:#059669;--warning:#d97706;--danger:#dc2626;--radius:10px}
+    html,body{height:100%;overflow:hidden}
+    body{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;background:var(--bg);color:var(--text)}
+    .page{display:flex;flex-direction:column;height:100%;padding:18px;gap:14px}
+    .toolbar{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+    .toolbar h2{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;font-size:16px;font-weight:800;flex:1}
+    .filter-group{display:flex;align-items:center;gap:6px}
+    .filter-group label{font-size:12px;color:var(--muted);white-space:nowrap}
+    .filter-group select{padding:7px 10px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;transition:border-color .2s}
+    .filter-group select:focus{outline:none;border-color:var(--primary)}
+    .btn{padding:8px 14px;border-radius:8px;border:none;font-size:13px;font-weight:600;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
+    .bp{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff}
+    .bp:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(45,91,227,.22)}
+    .bsm{padding:5px 10px;font-size:12px}
+    .bg2{background:#ecfdf5;color:var(--success);border:1px solid #a7f3d0}.bg2:hover{background:#d1fae5}
+    .bd{background:#fef2f2;color:var(--danger);border:1px solid #fecaca}.bd:hover{background:#fee2e2}
+    .bc{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+    .sum-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex-shrink:0}
+    .scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+    .scard .sl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
+    .scard .sv{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;font-size:18px;font-weight:800}
+    .scard.green .sv{color:var(--success)}.scard.blue .sv{color:var(--primary)}.scard.orange .sv{color:var(--warning)}
+    .tw{flex:1;overflow:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+    .tw::-webkit-scrollbar{width:4px;height:4px} .tw::-webkit-scrollbar-thumb{background:var(--border)}
+    table{width:100%;border-collapse:collapse}
+    thead{position:sticky;top:0;z-index:1}
+    th{background:#f8faff;padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+    td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#fafbff}
+    .b-lunas{background:#d1fae5;color:#065f46;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+    .b-belum{background:#fef3c7;color:#92400e;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+    .bulan-badge{background:var(--pl);color:var(--primary);font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px}
+    .mbg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+    .mbg.on{display:flex}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:440px;box-shadow:0 20px 60px rgba(15,23,42,.12);animation:pop .22s cubic-bezier(.22,1,.36,1)}
+    @keyframes pop{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+    .modal h3{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;font-size:16px;font-weight:800;margin-bottom:18px}
+    .mf{margin-bottom:13px}
+    .mf label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+    .mf input,.mf select,.mf textarea{width:100%;padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;transition:border-color .2s}
+    .mf input:focus,.mf select:focus,.mf textarea:focus{outline:none;border-color:var(--primary);background:#fff}
+    .rg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+    .penyewa-info{background:var(--pl);border:1px solid #c7d7ff;border-radius:8px;padding:10px 12px;font-size:13px;margin-top:6px;color:var(--primary);display:none}
+    .ov{display:none;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:200;align-items:center;justify-content:center}
+    .ov.on{display:flex}
+    .ovbox{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:26px 34px;text-align:center;box-shadow:0 20px 60px rgba(15,23,42,.12)}
+    .sp{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 11px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .ovbox p{font-size:13px;color:var(--muted)}
+    .toast{position:fixed;bottom:16px;right:16px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(50px);opacity:0;transition:all .3s;background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .toast.on{transform:translateY(0);opacity:1}
+    .toast.ok{background:#ecfdf5;border-color:#a7f3d0;color:var(--success)}
+    .toast.err{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
+    .erow td{text-align:center;padding:40px;color:var(--muted)}
+
+    /* ===== RESPONSIVE MOBILE ===== */
+    @media(max-width:600px){
+      .page{padding:12px;gap:10px}
+      .toolbar{gap:8px}
+      .toolbar h2{font-size:15px}
+      .filter-tabs{order:3;width:100%}
+      .ftab{padding:5px 10px;font-size:11px}
+      .sw{order:4;width:100%}
+      .sw input{width:100%}
+      .btn.bp{order:2}
+      /* Tabel scroll horizontal */
+      .tw{overflow-x:auto}
+      table{min-width:500px}
+      /* Modal full screen */
+      .mbg{align-items:flex-end}
+      .modal{width:100%!important;max-width:100%!important;border-radius:18px 18px 0 0!important;max-height:92vh;padding:20px 16px}
+      .rg{grid-template-columns:1fr!important}
+      /* Summary cards 1 kolom */
+      .sum-row{grid-template-columns:1fr!important}
+      /* KPI 2 kolom */
+      .kpi-row{grid-template-columns:1fr 1fr!important}
+      /* Charts stack */
+      .charts-row{grid-template-columns:1fr!important}
+      .bottom-row{grid-template-columns:1fr!important}
+      /* Kamar grid 1 kolom */
+      .kamar-grid{grid-template-columns:1fr 1fr!important}
+    }
+    @media(max-width:400px){
+      .kamar-grid{grid-template-columns:1fr!important}
+      .kpi-row{grid-template-columns:1fr!important}
+    }
+  </style>
+</head>
+<body>
+<div class="ov" id="ov"><div class="ovbox"><div class="sp"></div><p id="ovMsg">Membuat kwitansi...</p></div></div>
+<div class="page">
+  <div class="toolbar">
+    <h2>💰 Pembayaran Sewa</h2>
+    <div class="filter-group">
+      <label>Bulan</label>
+      <select id="fBulan" onchange="load()">
+        <!-- ✅ FIX: default "Semua Bulan" agar data tidak kosong saat pertama buka -->
+        <option value="0">Semua Bulan</option>
+        <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+        <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+        <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+        <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+      </select>
+      <label>Tahun</label>
+      <select id="fTahun" onchange="load()"></select>
+    </div>
+    <button class="btn bp" onclick="openAdd()">＋ Catat Pembayaran</button>
+  </div>
+
+  <div class="sum-row">
+    <div class="scard green"><div class="sl">Total Lunas Periode Ini</div><div class="sv" id="svTotal">—</div></div>
+    <div class="scard blue"><div class="sl">Jumlah Transaksi</div><div class="sv" id="svCount">—</div></div>
+    <div class="scard orange"><div class="sl">Belum Bayar (Bulan Ini)</div><div class="sv" id="svBelum">—</div></div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>#</th><th>Penyewa</th><th>Kamar</th><th>Periode</th><th>Jumlah</th><th>Tgl Bayar</th><th>Metode</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="tb"><tr class="erow"><td colspan="9">⏳ Memuat...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mbg" id="mbg">
+  <div class="modal">
+    <h3>Catat Pembayaran</h3>
+    <div class="mf">
+      <label>Penyewa *</label>
+      <select id="mpenyewa" onchange="onPenyewaChange()">
+        <option value="">-- Pilih Penyewa --</option>
+      </select>
+      <div class="penyewa-info" id="pInfo"></div>
+    </div>
+    <div class="rg">
+      <div class="mf">
+        <label>Bulan *</label>
+        <select id="mbulan">
+          <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+          <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+          <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+          <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+        </select>
+      </div>
+      <div class="mf"><label>Tahun *</label><input id="mtahun" type="number" placeholder="2025"></div>
+    </div>
+    <div class="rg">
+      <div class="mf"><label>Jumlah Bayar (Rp) *</label><input id="mjumlah" type="number" placeholder="0" min="0"></div>
+      <div class="mf">
+        <label>Metode Bayar</label>
+        <select id="mmetode">
+          <option>Tunai</option><option>Transfer Bank</option><option>QRIS</option><option>Lainnya</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf"><label>Keterangan</label><input id="mket" type="text" placeholder="Opsional"></div>
+    <div class="mfoot">
+      <button class="btn bc" onclick="closeModal()">Batal</button>
+      <button class="btn bp" id="bsave" onclick="save()">💾 Simpan & Cetak Kwitansi</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  var BULAN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  var penyewaList=[];
+
+  function fmt(n){ return Number(n).toLocaleString('id-ID'); }
+  function toast(m,t){ var el=document.getElementById('toast'); el.innerText=m; el.className='toast '+(t||'')+' on'; setTimeout(function(){ el.classList.remove('on'); },2800); }
+  function ovShow(show,msg){ document.getElementById('ovMsg').innerText=msg||'Memproses...'; document.getElementById('ov').className='ov'+(show?' on':''); }
+
+  window.onload=function(){
+    var now=new Date(), y=now.getFullYear();
+    var sel=document.getElementById('fTahun'); var opts='';
+    // ✅ FIX: tambah opsi "Semua Tahun" agar data lama tetap muncul
+    opts += '<option value="0">Semua Tahun</option>';
+    for(var i=y-3;i<=y+1;i++) opts+='<option value="'+i+'"'+(i===y?' selected':'')+'>'+i+'</option>';
+    sel.innerHTML=opts;
+    // ✅ FIX: default bulan = semua, tahun = tahun ini — user bisa filter sendiri
+    document.getElementById('fBulan').value = '0';
+    document.getElementById('fTahun').value = String(y);
+    load();
+  };
+
+  function load(){
+    document.getElementById('tb').innerHTML='<tr class="erow"><td colspan="9">⏳ Memuat...</td></tr>';
+    var b=Number(document.getElementById('fBulan').value);
+    var t=Number(document.getElementById('fTahun').value);
+    // ✅ FIX: kirim filter kosong jika value 0 (semua)
+    var filter={};
+    if(b > 0) filter.bulan=b;
+    if(t > 0) filter.tahun=t;
+    google.script.run
+      .withSuccessHandler(function(data){
+        if(!data || data.error){ document.getElementById('tb').innerHTML='<tr class="erow"><td colspan="9">❌ '+(data?data.error:'Gagal memuat')+'</td></tr>'; return; }
+        render(data);
+        updateSummary(data);
+      })
+      .withFailureHandler(function(e){ document.getElementById('tb').innerHTML='<tr class="erow"><td colspan="9">❌ '+e.message+'</td></tr>'; })
+      .getPembayaran(filter);
+  }
+
+  function updateSummary(data){
+    var total=0, count=0;
+    data.forEach(function(r){ if(String(r.status).toLowerCase()==='lunas'){total+=Number(r.jumlah);count++;} });
+    document.getElementById('svTotal').innerText='Rp '+fmt(total);
+    document.getElementById('svCount').innerText=count+' transaksi';
+    // Belum bayar selalu ambil dari dashboard (bulan berjalan)
+    google.script.run
+      .withSuccessHandler(function(s){ document.getElementById('svBelum').innerText=s.tagiBelum+' orang'; })
+      .getDashboardSummary();
+  }
+
+  function render(data){
+    if(!data || !data.length){
+      document.getElementById('tb').innerHTML='<tr class="erow"><td colspan="9">💰 Tidak ada data pembayaran.</td></tr>';
+      return;
+    }
+    document.getElementById('tb').innerHTML=data.map(function(r){
+      var st=String(r.status).toLowerCase();
+      return '<tr>'+
+        '<td style="color:var(--muted);font-size:11px">#'+String(r.id).padStart(4,'0')+'</td>'+
+        '<td><b>'+r.nama_penyewa+'</b></td>'+
+        '<td><span style="background:var(--pl);color:var(--primary);font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px">'+r.nomor_kamar+'</span></td>'+
+        '<td><span class="bulan-badge">'+BULAN[r.bulan-1]+' '+r.tahun+'</span></td>'+
+        '<td style="font-weight:700;color:var(--success)">Rp '+fmt(r.jumlah)+'</td>'+
+        '<td style="font-size:12px;color:var(--muted)">'+r.tgl_bayar+'</td>'+
+        '<td style="font-size:12px">'+r.metode+'</td>'+
+        '<td><span class="b-'+st+'">'+r.status+'</span></td>'+
+        '<td><div style="display:flex;gap:4px">'+
+          '<button class="btn bsm bg2" onclick=\'cetakKwitansi('+JSON.stringify(r)+')\'>🖨️</button>'+
+          '<button class="btn bsm bd" onclick="hapus('+r.id+')">🗑️</button>'+
+        '</div></td></tr>';
+    }).join('');
+  }
+
+  function openAdd(){
+    google.script.run.withSuccessHandler(function(list){
+      penyewaList=list||[];
+      var opts='<option value="">-- Pilih Penyewa --</option>';
+      penyewaList.forEach(function(p){
+        opts+='<option value="'+p.id+'" data-kamar="'+p.kamar_id+'" data-harga="'+p.harga+'" data-nomor="'+p.nomor_kamar+'">'+p.nama+' (Kamar '+p.nomor_kamar+')</option>';
+      });
+      document.getElementById('mpenyewa').innerHTML=opts;
+      document.getElementById('pInfo').style.display='none';
+      var now=new Date();
+      document.getElementById('mbulan').value=now.getMonth()+1;
+      document.getElementById('mtahun').value=now.getFullYear();
+      document.getElementById('mjumlah').value='';
+      document.getElementById('mmetode').value='Tunai';
+      document.getElementById('mket').value='';
+      document.getElementById('mbg').classList.add('on');
+    }).getPenyewaAktif();
+  }
+
+  function onPenyewaChange(){
+    var sel=document.getElementById('mpenyewa');
+    var opt=sel.options[sel.selectedIndex];
+    var info=document.getElementById('pInfo');
+    if(sel.value && opt.dataset.harga){
+      info.style.display='block';
+      info.innerText='🚪 Kamar '+opt.dataset.nomor+' — Harga sewa: Rp '+fmt(opt.dataset.harga)+'/bulan';
+      document.getElementById('mjumlah').value=opt.dataset.harga;
+    } else {
+      info.style.display='none';
+      document.getElementById('mjumlah').value='';
+    }
+  }
+
+  function closeModal(){ document.getElementById('mbg').classList.remove('on'); }
+
+  function save(){
+    var sel=document.getElementById('mpenyewa');
+    var opt=sel.options[sel.selectedIndex];
+    if(!sel.value){ toast('⚠️ Pilih penyewa!','err'); return; }
+    var d={
+      penyewa_id:Number(sel.value),
+      kamar_id:Number(opt.dataset.kamar),
+      bulan:Number(document.getElementById('mbulan').value),
+      tahun:Number(document.getElementById('mtahun').value),
+      jumlah:Number(document.getElementById('mjumlah').value),
+      metode:document.getElementById('mmetode').value,
+      keterangan:document.getElementById('mket').value,
+      nama_penyewa:sel.options[sel.selectedIndex].text.split(' (')[0],
+      nomor_kamar:opt.dataset.nomor
+    };
+    if(!d.jumlah){ toast('⚠️ Jumlah bayar wajib diisi!','err'); return; }
+    var btn=document.getElementById('bsave'); btn.disabled=true; btn.innerText='⏳...';
+    google.script.run
+      .withSuccessHandler(function(r){
+        btn.disabled=false; btn.innerText='💾 Simpan & Cetak Kwitansi';
+        if(r && r.status){
+          closeModal();
+          d.id=r.id;
+          ovShow(true,'Membuat kwitansi PDF...');
+          google.script.run
+            .withSuccessHandler(function(url){ ovShow(false); toast('✅ Tersimpan! Membuka kwitansi...','ok'); window.open(url,'_blank'); load(); })
+            .withFailureHandler(function(e){ ovShow(false); toast('✅ Tersimpan, kwitansi gagal: '+e.message,''); load(); })
+            .buatKwitansi(d);
+        } else { toast('❌ Gagal menyimpan','err'); }
+      })
+      .withFailureHandler(function(e){ btn.disabled=false; btn.innerText='💾 Simpan & Cetak Kwitansi'; toast('❌ '+e.message,'err'); })
+      .catatPembayaran(d);
+  }
+
+  function cetakKwitansi(r){
+    ovShow(true,'Membuat kwitansi...');
+    google.script.run
+      .withSuccessHandler(function(url){ ovShow(false); window.open(url,'_blank'); })
+      .withFailureHandler(function(e){ ovShow(false); toast('❌ '+e.message,'err'); })
+      .buatKwitansi(r);
+  }
+
+  function hapus(id){
+    if(!confirm('Hapus data pembayaran #'+id+'?')) return;
+    google.script.run
+      .withSuccessHandler(function(r){
+        if(r && r.status){ toast('🗑️ Dihapus','ok'); load(); }
+        else toast('❌ Gagal','err');
+      })
+      .withFailureHandler(function(e){ toast('❌ '+e.message,'err'); })
+      .hapusPembayaran(id);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top"><meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#f0f4ff;--surface:#fff;--surface2:#f7f9ff;--border:#e2e8f5;--primary:#2d5be3;--primary2:#1a3ebf;--pl:#eef2ff;--text:#0f172a;--muted:#64748b;--success:#059669;--warning:#d97706;--danger:#dc2626;--radius:10px}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    .page{display:flex;flex-direction:column;height:100%;padding:18px;gap:14px}
+    .toolbar{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+    .toolbar h2{font-size:16px;font-weight:800;flex:1}
+    .filter-tabs{display:flex;gap:5px}
+    .ftab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s}
+    .ftab.active{border-color:var(--primary);background:var(--pl);color:var(--primary)}
+    .sw{position:relative}
+    .sw input{padding:8px 13px 8px 34px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;width:190px;transition:border-color .2s}
+    .sw input:focus{outline:none;border-color:var(--primary)}
+    .sw .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+    .btn{padding:8px 14px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;font-family:inherit}
+    .bp{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff}
+    .bp:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(45,91,227,.22)}
+    .bsm{padding:5px 10px;font-size:12px}
+    .be{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}.be:hover{background:#dbeafe}
+    .bd{background:#fef2f2;color:var(--danger);border:1px solid #fecaca}.bd:hover{background:#fee2e2}
+    .bc{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+    .kamar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;overflow-y:auto;flex:1;padding-bottom:4px}
+    .kamar-grid::-webkit-scrollbar{width:4px}.kamar-grid::-webkit-scrollbar-thumb{background:var(--border)}
+    .kcard{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s;display:flex;flex-direction:column}
+    .kcard:hover{box-shadow:0 6px 24px rgba(45,91,227,.12);transform:translateY(-3px)}
+    .kcard::before{content:'';display:block;height:3px}
+    .kcard.kosong::before{background:linear-gradient(90deg,var(--success),#34d399)}
+    .kcard.terisi::before{background:linear-gradient(90deg,var(--primary),#818cf8)}
+    .kcard.maintenance::before{background:linear-gradient(90deg,var(--warning),#fbbf24)}
+    .kimg{width:100%;height:130px;object-fit:cover;background:var(--surface2);display:block}
+    .kimg-placeholder{width:100%;height:130px;background:linear-gradient(135deg,#e2e8f5,#f0f4ff);display:flex;align-items:center;justify-content:center;font-size:36px;color:#c7d2e8}
+    .kbody{padding:14px;flex:1;display:flex;flex-direction:column;gap:4px}
+    .kcard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px}
+    .kcard-nomor{font-size:18px;font-weight:800}
+    .kstatus{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+    .st-kosong{background:#d1fae5;color:#065f46}
+    .st-terisi{background:#e0e7ff;color:#3730a3}
+    .st-maintenance{background:#fef3c7;color:#92400e}
+    .kcard-tipe{font-size:12px;color:var(--muted)}
+    .kcard-harga{font-size:15px;font-weight:700;color:var(--primary)}
+    .penghuni-box{margin-top:4px;padding:8px 10px;border-radius:8px;font-size:12px}
+    .penghuni-ada{background:#eef2ff;border:1px solid #c7d7ff;color:#1e3a8a}
+    .penghuni-kosong{background:var(--surface2);border:1px dashed var(--border);color:var(--muted)}
+    .penghuni-nama{font-weight:700;font-size:12px;margin-bottom:4px}
+    .wa-btn{display:inline-flex;align-items:center;gap:4px;background:#25d366;color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;text-decoration:none;margin-top:2px}
+    .wa-btn:hover{background:#1da851}
+    .kcard-fas{font-size:11px;color:var(--muted);line-height:1.6;flex:1;margin-top:4px}
+    .kcard-acts{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+    .skeleton{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden}
+    .sk-img{width:100%;height:130px;background:linear-gradient(90deg,#f0f4ff 25%,#e2e8f5 50%,#f0f4ff 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+    .sk-body{padding:14px;display:flex;flex-direction:column;gap:8px}
+    .sk-line{height:12px;border-radius:6px;background:linear-gradient(90deg,#f0f4ff 25%,#e2e8f5 50%,#f0f4ff 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .mbg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.4);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+    .mbg.on{display:flex}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.15);animation:pop .22s cubic-bezier(.22,1,.36,1)}
+    @keyframes pop{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+    .modal::-webkit-scrollbar{width:4px}.modal::-webkit-scrollbar-thumb{background:var(--border)}
+    .modal h3{font-size:16px;font-weight:800;margin-bottom:18px}
+    .mf{margin-bottom:13px}
+    .mf label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+    .mf input,.mf select,.mf textarea{width:100%;padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;transition:border-color .2s}
+    .mf input:focus,.mf select:focus,.mf textarea:focus{outline:none;border-color:var(--primary);background:#fff}
+    .mf textarea{resize:vertical;min-height:65px}
+    .rg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+    .img-section{border:1.5px dashed var(--border);border-radius:10px;padding:14px;background:var(--surface2)}
+    .img-tabs{display:flex;gap:4px;margin-bottom:12px}
+    .itab{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s}
+    .itab.active{border-color:var(--primary);background:var(--pl);color:var(--primary)}
+    .img-preview{width:100%;height:160px;object-fit:cover;border-radius:8px;margin-top:10px;display:none;border:1px solid var(--border)}
+    .img-preview.show{display:block}
+    .upload-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:1.5px dashed #c7d2e8;border-radius:8px;background:var(--surface);color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s}
+    .upload-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--pl)}
+    .upload-input{display:none}
+    .upload-progress{display:none;margin-top:8px;font-size:12px;color:var(--primary);text-align:center}
+    .ov{display:none;position:fixed;inset:0;background:rgba(15,23,42,.4);z-index:200;align-items:center;justify-content:center}
+    .ov.on{display:flex}
+    .ovbox{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:26px 34px;text-align:center;box-shadow:0 20px 60px rgba(15,23,42,.12)}
+    .sp{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 11px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .ovbox p{font-size:13px;color:var(--muted)}
+    .toast{position:fixed;bottom:16px;right:16px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(50px);opacity:0;transition:all .3s;background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .toast.on{transform:translateY(0);opacity:1}
+    .toast.ok{background:#ecfdf5;border-color:#a7f3d0;color:var(--success)}
+    .toast.err{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
+    .empty-state{grid-column:1/-1;text-align:center;padding:50px;color:var(--muted);font-size:13px}
+
+    /* ===== RESPONSIVE MOBILE ===== */
+    @media(max-width:600px){
+      .page{padding:12px;gap:10px}
+      .toolbar{gap:8px}
+      .toolbar h2{font-size:15px}
+      .filter-tabs{order:3;width:100%}
+      .ftab{padding:5px 10px;font-size:11px}
+      .sw{order:4;width:100%}
+      .sw input{width:100%}
+      .btn.bp{order:2}
+      /* Tabel scroll horizontal */
+      .tw{overflow-x:auto}
+      table{min-width:500px}
+      /* Modal full screen */
+      .mbg{align-items:flex-end}
+      .modal{width:100%!important;max-width:100%!important;border-radius:18px 18px 0 0!important;max-height:92vh;padding:20px 16px}
+      .rg{grid-template-columns:1fr!important}
+      /* Summary cards 1 kolom */
+      .sum-row{grid-template-columns:1fr!important}
+      /* KPI 2 kolom */
+      .kpi-row{grid-template-columns:1fr 1fr!important}
+      /* Charts stack */
+      .charts-row{grid-template-columns:1fr!important}
+      .bottom-row{grid-template-columns:1fr!important}
+      /* Kamar grid 1 kolom */
+      .kamar-grid{grid-template-columns:1fr 1fr!important}
+    }
+    @media(max-width:400px){
+      .kamar-grid{grid-template-columns:1fr!important}
+      .kpi-row{grid-template-columns:1fr!important}
+    }
+  </style>
+</head>
+<body>
+<div class="ov" id="ov"><div class="ovbox"><div class="sp"></div><p id="ovMsg">Memproses...</p></div></div>
+
+<div class="page">
+  <div class="toolbar">
+    <h2>&#x1F6AA; Data Kamar</h2>
+    <div class="filter-tabs">
+      <div class="ftab active" onclick="setFilter(this,'semua')">Semua</div>
+      <div class="ftab" onclick="setFilter(this,'kosong')">Kosong</div>
+      <div class="ftab" onclick="setFilter(this,'terisi')">Terisi</div>
+      <div class="ftab" onclick="setFilter(this,'maintenance')">Maintenance</div>
+    </div>
+    <div class="sw"><span class="si">&#x1F50D;</span><input type="text" id="sq" placeholder="Cari kamar..." oninput="doFilter()"></div>
+    <button class="btn bp" onclick="openAdd()">+ Tambah Kamar</button>
+  </div>
+  <div class="kamar-grid" id="grid"></div>
+</div>
+
+<div class="mbg" id="mbg">
+  <div class="modal">
+    <h3 id="mtitle">Tambah Kamar</h3>
+    <input type="hidden" id="eid">
+    <input type="hidden" id="currentImgUrl">
+    <div class="rg">
+      <div class="mf"><label>Nomor Kamar *</label><input id="mn" type="text" placeholder="cth: A1, 101"></div>
+      <div class="mf"><label>Tipe Kamar *</label><input id="mt" type="text" placeholder="cth: Standard, VIP"></div>
+    </div>
+    <div class="rg">
+      <div class="mf"><label>Harga / Bulan (Rp) *</label><input id="mh" type="number" placeholder="0" min="0"></div>
+      <div class="mf"><label>Status</label>
+        <select id="ms">
+          <option value="kosong">Kosong</option>
+          <option value="terisi">Terisi</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf"><label>Fasilitas</label><input id="mfas" type="text" placeholder="cth: AC, WiFi, Kamar Mandi Dalam"></div>
+    <div class="mf"><label>Keterangan</label><textarea id="mket" placeholder="Keterangan tambahan (opsional)"></textarea></div>
+    <div class="mf">
+      <label>Foto Kamar</label>
+      <div class="img-section">
+        <div class="img-tabs">
+          <div class="itab active" id="itab-url" onclick="switchImgTab('url')">Link URL</div>
+          <div class="itab" id="itab-upload" onclick="switchImgTab('upload')">Upload Foto</div>
+        </div>
+        <div id="tab-url">
+          <input id="mimg-url" type="text" placeholder="https://..." oninput="previewFromUrl(this.value)" style="width:100%;padding:10px 12px;background:#fff;border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;">
+          <p style="font-size:11px;color:var(--muted);margin-top:6px;">Google Drive: Bagikan lalu ganti /view dengan /uc?export=view&amp;id=ID</p>
+        </div>
+        <div id="tab-upload" style="display:none">
+          <label class="upload-btn" for="fileInput">Klik untuk pilih foto (JPG, PNG, maks 2MB)</label>
+          <input type="file" id="fileInput" class="upload-input" accept="image/jpeg,image/png,image/webp" onchange="handleFileSelect(this)">
+          <div class="upload-progress" id="uploadProgress">Mengupload ke Google Drive...</div>
+        </div>
+        <img id="imgPreview" class="img-preview" src="" alt="Preview">
+        <div id="imgClear" style="display:none;margin-top:8px;">
+          <button type="button" onclick="clearImage()" style="font-size:12px;color:var(--danger);background:none;border:none;cursor:pointer;">Hapus foto</button>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bc" onclick="closeModal()">Batal</button>
+      <button class="btn bp" id="bsave" onclick="save()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var all = [];
+var curFilter = 'semua';
+var imgTab = 'url';
+var uploadedUrl = '';
+
+function fmt(n) { return Number(n).toLocaleString('id-ID'); }
+
+function showToast(m, t) {
+  var el = document.getElementById('toast');
+  el.innerText = m;
+  el.className = 'toast ' + (t || '') + ' on';
+  setTimeout(function() { el.classList.remove('on'); }, 2800);
+}
+
+function showOv(show, msg) {
+  document.getElementById('ovMsg').innerText = msg || 'Memproses...';
+  document.getElementById('ov').className = 'ov' + (show ? ' on' : '');
+}
+
+function skeletonHtml() {
+  var s = '';
+  for (var i = 0; i < 6; i++) {
+    s += '<div class="skeleton"><div class="sk-img"></div>';
+    s += '<div class="sk-body"><div class="sk-line" style="width:60%"></div>';
+    s += '<div class="sk-line" style="width:40%"></div>';
+    s += '<div class="sk-line" style="width:80%"></div></div></div>';
+  }
+  return s;
+}
+
+window.onload = function() { load(); };
+
+function load() {
+  document.getElementById('grid').innerHTML = skeletonHtml();
+  google.script.run
+    .withSuccessHandler(onLoaded)
+    .withFailureHandler(onLoadFail)
+    .getKamar();
+}
+
+function onLoaded(d) {
+  if (d === null || d === undefined) {
+    document.getElementById('grid').innerHTML = '<div class="empty-state">Gagal memuat data kamar</div>';
+    return;
+  }
+  if (!Array.isArray(d)) {
+    document.getElementById('grid').innerHTML = '<div class="empty-state">' + (d.error || 'Format data tidak valid') + '</div>';
+    return;
+  }
+  all = d;
+  doFilter();
+}
+
+function onLoadFail(e) {
+  document.getElementById('grid').innerHTML = '<div class="empty-state">Gagal: ' + e.message + '</div>';
+}
+
+function setFilter(el, f) {
+  document.querySelectorAll('.ftab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  curFilter = f;
+  doFilter();
+}
+
+function doFilter() {
+  var k = document.getElementById('sq').value.toLowerCase();
+  var rows = [];
+  for (var i = 0; i < all.length; i++) {
+    var r = all[i];
+    var mK = !k
+      || (r.nomor || '').toLowerCase().indexOf(k) >= 0
+      || (r.tipe || '').toLowerCase().indexOf(k) >= 0
+      || (r.penghuni_nama || '').toLowerCase().indexOf(k) >= 0;
+    var mF = curFilter === 'semua' || (r.status || '').toLowerCase() === curFilter;
+    if (mK && mF) rows.push(r);
+  }
+  render(rows);
+}
+
+function buildPenghuniBox(r) {
+  if (!r.penghuni_nama) {
+    return '<div class="penghuni-box penghuni-kosong">Belum ada penghuni</div>';
+  }
+
+  // ambil nomor & bersihkan selain angka
+  var waNum = (r.penghuni_hp || '').replace(/\D/g, '');
+
+  // convert ke format Indonesia (62)
+  if (waNum.startsWith('0')) {
+    waNum = '62' + waNum.slice(1);
+  } else if (!waNum.startsWith('62') && waNum !== '') {
+    waNum = '62' + waNum;
+  }
+
+  // format tampilan (biar ada +62)
+  var waDisplay = waNum ? '+' + waNum : '';
+
+  // tombol WA
+  var waLink = waNum
+    ? '<a class="wa-btn" href="https://wa.me/' + waNum + '" target="_blank">WA ' + waDisplay + '</a>'
+    : '';
+
+  return '<div class="penghuni-box penghuni-ada">'
+    + '<div style="font-size:10px;color:#3730a3;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Penghuni</div>'
+    + '<div class="penghuni-nama">' + r.penghuni_nama + '</div>'
+    + waLink
+    + '</div>';
+}
+
+function render(rows) {
+  if (!rows.length) {
+    document.getElementById('grid').innerHTML = '<div class="empty-state">Tidak ada kamar ditemukan.</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var st = (r.status || 'kosong').toLowerCase();
+    var imgHtml = r.gambar_url
+      ? '<img class="kimg" src="' + r.gambar_url + '" alt="Foto" onerror="this.style.display=\'none\'">'
+      : '<div class="kimg-placeholder">&#x1F6AA;</div>';
+    var fasHtml = r.fasilitas || '<em style="color:#c7d2e8">Belum ada fasilitas</em>';
+
+    html += '<div class="kcard ' + st + '">'
+      + imgHtml
+      + '<div class="kbody">'
+        + '<div class="kcard-top">'
+          + '<div class="kcard-nomor">Kamar ' + r.nomor + '</div>'
+          + '<span class="kstatus st-' + st + '">' + r.status + '</span>'
+        + '</div>'
+        + '<div class="kcard-tipe">' + r.tipe + '</div>'
+        + '<div class="kcard-harga">Rp ' + fmt(r.harga) + '<span style="font-size:11px;font-weight:400;color:var(--muted)">/bln</span></div>'
+        + buildPenghuniBox(r)
+        + '<div class="kcard-fas">' + fasHtml + '</div>'
+        + '<div class="kcard-acts">'
+          + '<button class="btn bsm be" onclick="openEdit(' + r.id + ')">Edit</button>'
+          + '<button class="btn bsm bd" onclick="hapus(' + r.id + ')">Hapus</button>'
+        + '</div>'
+      + '</div>'
+    + '</div>';
+  }
+  document.getElementById('grid').innerHTML = html;
+}
+
+function switchImgTab(tab) {
+  imgTab = tab;
+  document.querySelectorAll('.itab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('itab-' + tab).classList.add('active');
+  document.getElementById('tab-url').style.display = tab === 'url' ? 'block' : 'none';
+  document.getElementById('tab-upload').style.display = tab === 'upload' ? 'block' : 'none';
+}
+
+function previewFromUrl(url) {
+  var prev = document.getElementById('imgPreview');
+  var clr = document.getElementById('imgClear');
+  if (url && url.indexOf('http') === 0) {
+    prev.src = url; prev.className = 'img-preview show'; clr.style.display = 'block';
+    uploadedUrl = '';
+  } else {
+    prev.className = 'img-preview'; clr.style.display = 'none';
+  }
+}
+
+function handleFileSelect(input) {
+  var file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('Ukuran file maksimal 2MB!', 'err'); input.value = ''; return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('imgPreview').src = e.target.result;
+    document.getElementById('imgPreview').className = 'img-preview show';
+    document.getElementById('imgClear').style.display = 'block';
+    var base64 = e.target.result.split(',')[1];
+    document.getElementById('uploadProgress').style.display = 'block';
+    document.getElementById('bsave').disabled = true;
+    google.script.run
+      .withSuccessHandler(function(res) {
+        document.getElementById('uploadProgress').style.display = 'none';
+        document.getElementById('bsave').disabled = false;
+        if (res && res.status) {
+          uploadedUrl = res.url;
+          document.getElementById('currentImgUrl').value = res.url;
+          showToast('Foto berhasil diupload', 'ok');
+        } else {
+          showToast('Upload gagal: ' + (res ? res.msg : ''), 'err');
+          uploadedUrl = '';
+        }
+      })
+      .withFailureHandler(function(err) {
+        document.getElementById('uploadProgress').style.display = 'none';
+        document.getElementById('bsave').disabled = false;
+        showToast('Upload gagal: ' + err.message, 'err');
+        uploadedUrl = '';
+      })
+      .uploadGambarKamar(base64, file.name, file.type);
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage() {
+  document.getElementById('imgPreview').className = 'img-preview';
+  document.getElementById('imgClear').style.display = 'none';
+  document.getElementById('mimg-url').value = '';
+  document.getElementById('currentImgUrl').value = '';
+  document.getElementById('fileInput').value = '';
+  uploadedUrl = '';
+}
+
+function getImageUrl() {
+  if (imgTab === 'url') return document.getElementById('mimg-url').value.trim();
+  return document.getElementById('currentImgUrl').value || uploadedUrl;
+}
+
+function openAdd() {
+  document.getElementById('mtitle').innerText = 'Tambah Kamar';
+  document.getElementById('eid').value = '';
+  document.getElementById('mn').value = '';
+  document.getElementById('mt').value = '';
+  document.getElementById('mh').value = '';
+  document.getElementById('mfas').value = '';
+  document.getElementById('mket').value = '';
+  document.getElementById('currentImgUrl').value = '';
+  document.getElementById('ms').value = 'kosong';
+  clearImage();
+  switchImgTab('url');
+  document.getElementById('mbg').classList.add('on');
+  document.getElementById('mn').focus();
+}
+
+function openEdit(id) {
+  var row = null;
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].id === id) { row = all[i]; break; }
+  }
+  if (!row) { showToast('Data tidak ditemukan', 'err'); return; }
+  document.getElementById('mtitle').innerText = 'Edit Kamar';
+  document.getElementById('eid').value = row.id;
+  document.getElementById('mn').value = row.nomor;
+  document.getElementById('mt').value = row.tipe;
+  document.getElementById('mh').value = row.harga;
+  document.getElementById('ms').value = row.status;
+  document.getElementById('mfas').value = row.fasilitas || '';
+  document.getElementById('mket').value = row.keterangan || '';
+  var imgUrl = row.gambar_url || '';
+  document.getElementById('currentImgUrl').value = imgUrl;
+  document.getElementById('mimg-url').value = imgUrl;
+  uploadedUrl = '';
+  if (imgUrl) {
+    document.getElementById('imgPreview').src = imgUrl;
+    document.getElementById('imgPreview').className = 'img-preview show';
+    document.getElementById('imgClear').style.display = 'block';
+  } else {
+    clearImage();
+  }
+  switchImgTab('url');
+  document.getElementById('mbg').classList.add('on');
+}
+
+function closeModal() { document.getElementById('mbg').classList.remove('on'); }
+
+function save() {
+  var id = document.getElementById('eid').value;
+  var d = {
+    nomor:      document.getElementById('mn').value.trim(),
+    tipe:       document.getElementById('mt').value.trim(),
+    harga:      Number(document.getElementById('mh').value),
+    status:     document.getElementById('ms').value,
+    fasilitas:  document.getElementById('mfas').value.trim(),
+    keterangan: document.getElementById('mket').value.trim(),
+    gambar_url: getImageUrl()
+  };
+  if (!d.nomor || !d.tipe || !d.harga) { showToast('Nomor, tipe, dan harga wajib diisi!', 'err'); return; }
+  var btn = document.getElementById('bsave');
+  btn.disabled = true; btn.innerText = 'Menyimpan...';
+  if (id) {
+    d.id = Number(id);
+    google.script.run
+      .withSuccessHandler(function(r) {
+        btn.disabled = false; btn.innerText = 'Simpan';
+        if (r && r.status) { closeModal(); showToast('Kamar diperbarui', 'ok'); load(); }
+        else showToast('Gagal: ' + (r ? r.msg || '' : ''), 'err');
+      })
+      .withFailureHandler(function(e) { btn.disabled = false; btn.innerText = 'Simpan'; showToast('Gagal: ' + e.message, 'err'); })
+      .editKamar(d);
+  } else {
+    google.script.run
+      .withSuccessHandler(function(r) {
+        btn.disabled = false; btn.innerText = 'Simpan';
+        if (r && r.status) { closeModal(); showToast('Kamar ditambahkan', 'ok'); load(); }
+        else showToast('Gagal', 'err');
+      })
+      .withFailureHandler(function(e) { btn.disabled = false; btn.innerText = 'Simpan'; showToast('Gagal: ' + e.message, 'err'); })
+      .tambahKamar(d);
+  }
+}
+
+function hapus(id) {
+  var row = null;
+  for (var i = 0; i < all.length; i++) { if (all[i].id === id) { row = all[i]; break; } }
+  var nm = row ? row.nomor : id;
+  if (!confirm('Hapus kamar ' + nm + '? Pastikan tidak ada penyewa aktif.')) return;
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (r && r.status) { showToast('Kamar dihapus', 'ok'); load(); }
+      else showToast('Gagal: ' + (r ? r.msg || '' : ''), 'err');
+    })
+    .withFailureHandler(function(e) { showToast('Gagal: ' + e.message, 'err'); })
+    .hapusKamar(id);
+}
+</script>
+</body>
+</html>
